@@ -1,19 +1,24 @@
-name: RSS Health Check
+name: Check RSS Feeds
 
 on:
   schedule:
-    - cron: "0 6 * * *"
-  workflow_dispatch:
+    - cron: '0 9 * * 1' # Elke maandagochtend om 09:00
+  workflow_dispatch: # Zorgt ervoor dat je het handmatig kunt starten
 
 jobs:
-  check:
+  check-feeds:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: node check-rss.js
+      - name: Install dependencies
+        run: npm install -g tsx
+
+      - name: Run RSS validation script
+        run: npx tsx scripts/check-rss.ts
