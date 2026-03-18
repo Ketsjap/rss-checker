@@ -1,41 +1,19 @@
-import { RSS_CORPUS } from "./rss-corpus";
+import { RSS_CORPUS } from "./rss-corpus.js";
 
-async function checkFeed(url: string) {
+async function checkFeed(url) {
   try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "rss-checker/1.0"
-      }
-    });
-
+    const res = await fetch(url);
     const text = await res.text();
 
     const isXML = text.includes("<rss") || text.includes("<feed");
 
-    return {
-      ok: res.ok && isXML,
-      status: res.status,
-    };
-  } catch (err) {
-    return {
-      ok: false,
-      status: "error",
-    };
+    return res.ok && isXML;
+  } catch {
+    return false;
   }
 }
 
-async function run() {
-  for (const source of RSS_CORPUS) {
-    const result = await checkFeed(source.url);
-
-    if (result.ok) {
-      console.log(`✅ ${source.publisher} - ${source.name}`);
-    } else {
-      console.log(
-        `❌ ${source.publisher} - ${source.name} (${source.url}) -> ${result.status}`
-      );
-    }
-  }
+for (const source of RSS_CORPUS) {
+  const ok = await checkFeed(source.url);
+  console.log(`${ok ? "✅" : "❌"} ${source.publisher} - ${source.name}`);
 }
-
-run();
